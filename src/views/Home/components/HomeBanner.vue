@@ -1,66 +1,102 @@
 <script setup>
+import { ref } from 'vue'
+import { ChevronLeft, ChevronRight } from '@lucide/vue'
+
+const carouselRef = ref(null)
 const list = [
-  {
-    imgUrl:
-      'https://officialwebsitestorage.blob.core.chinacloudapi.cn/public/upload/photo_db/2022/06/27/202206271514102834/202206271514102834_1120_340.jpg?&rand=0827',
-    urlString: '1'
-  },
-  {
-    imgUrl:
-      'https://officialwebsitestorage.blob.core.chinacloudapi.cn/public/upload/photo_db/2020/06/18/202006181627374124/202006181627374124_1120_340.jpg?&rand=0827',
-    urlString: '3'
-  },
-  {
-    imgUrl:
-      'https://officialwebsitestorage.blob.core.chinacloudapi.cn/public/upload/photo_db/2020/06/18/202006181626316868/202006181626316868_1120_340.jpg?&rand=0827',
-    urlString: '4'
-  },
-  {
-    imgUrl:
-      'https://officialwebsitestorage.blob.core.chinacloudapi.cn/public/upload/photo_db/2020/06/18/202006181627596520/202006181627596520_1120_340.jpg?&rand=0827',
-    urlString: '2'
-  }
+  { imgUrl: '/img/banner/1.jpg', urlString: '1' },
+  { imgUrl: '/img/banner/2.jpg', urlString: '2' },
+  { imgUrl: '/img/banner/3.jpg', urlString: '3' },
+  { imgUrl: '/img/banner/4.jpg', urlString: '4' }
 ]
+
+const prev = () => carouselRef.value?.prev()
+const next = () => carouselRef.value?.next()
 </script>
+
 <template>
   <div class="banner">
-    <el-carousel height="340px">
-      <el-carousel-item v-for="item in list" :key="item">
-        <img
-          :src="item.imgUrl"
-          class="images"
-          @click="$router.push(`/menu/${item.urlString}`)"
-          alt=""
-        />
+    <el-carousel ref="carouselRef" height="360px" :interval="5000" arrow="never">
+      <el-carousel-item v-for="item in list" :key="item.urlString">
+        <div class="banner-slide" @click="$router.push(`/menu/${item.urlString}`)">
+          <img :src="item.imgUrl" class="banner-img" alt="" />
+        </div>
       </el-carousel-item>
     </el-carousel>
+
+    <button class="carousel-btn prev" @click="prev" aria-label="上一张">
+      <ChevronLeft :size="24" />
+    </button>
+    <button class="carousel-btn next" @click="next" aria-label="下一张">
+      <ChevronRight :size="24" />
+    </button>
   </div>
 </template>
 
 <style scoped lang="scss">
 .banner {
-  width: 1240px;
-  margin: 50px auto;
+  width: $mcMaxWidth;
+  margin: 30px auto 0;
+  position: relative;
 
-  .images {
-    width: 1240px;
-    object-fit: cover;
+  :deep(.el-carousel__container) {
+    border-radius: $mcRadius;
   }
 
-  h3 {
-    color: #475669;
-    opacity: 0.75;
-    line-height: 150px;
-    margin: 0;
-    text-align: center;
+  :deep(.el-carousel__indicator .el-carousel__button) {
+    background: $mcTextMuted;
+  }
+}
+
+.banner-slide {
+  width: 100%;
+  height: 100%;
+  border-radius: $mcRadius;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+
+  &:hover {
+    transform: scale(1.03);
+  }
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: $mcText;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $mcShadowSm;
+  transition: all $mcTransition;
+  z-index: 2;
+
+  &:hover {
+    background: #fff;
+    box-shadow: $mcShadow;
+    color: $brandRed;
   }
 
-  &:nth-child(2n) {
-    background-color: #99a9bf;
+  &.prev {
+    left: 16px;
   }
 
-  &:nth-child(2n + 1) {
-    background-color: #d3dce6;
+  &.next {
+    right: 16px;
   }
 }
 </style>

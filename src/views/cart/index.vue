@@ -3,6 +3,12 @@ import { getcartAPI, deletecartAPI, updatecartAPI, clearcartAPI } from '@/apis/c
 import { addorderAPI } from '@/apis/order'
 import { onMounted, ref, computed } from 'vue'
 import { debounce } from 'lodash'
+import { ElMessage } from 'element-plus'
+import { v4 as uuidv4 } from 'uuid'
+import { useCartStore } from '@/stores/cart'
+import { Trash2 } from '@lucide/vue'
+
+const cartStore = useCartStore()
 const cartList = ref([])
 const getcart = async () => {
   const res = await getcartAPI()
@@ -10,109 +16,108 @@ const getcart = async () => {
 }
 const delCart = async (id) => {
   const idx = cartList.value.findIndex((item) => id === item.id)
+  const removed = cartList.value[idx]
   cartList.value.splice(idx, 1)
-  await deletecartAPI(id)
+  try {
+    await deletecartAPI(id)
+    cartStore.refresh()
+  } catch {
+    cartList.value.splice(idx, 0, removed)
+    ElMessage({ type: 'error', message: '删除失败，请重试' })
+  }
 }
 const handleChange = debounce(async (id, num) => {
   await updatecartAPI({ id, num })
+  cartStore.refresh()
 }, 300)
 const allCount = computed(() => cartList.value.reduce((a, c) => a + c.num, 0))
 const allPrice = computed(() => cartList.value.reduce((a, c) => a + c.num * c.price, 0))
-const clear = async () => {
+const clearCart = async () => {
   await clearcartAPI()
   getcart()
+  cartStore.refresh()
 }
 const addOrder = async () => {
-  const idx = new Date().getTime()
-  const namestring = cartList.value.map((item) => `${item.name}*${item.num}`).join('/')
-  const pricex = allPrice.value
-  const res = await addorderAPI({ id: idx, name: namestring, price: pricex })
-  console.log(res)
+  const order_no = uuidv4()
+  const items = cartList.value.map((item) => `${item.name}*${item.num}`).join('/')
+  const total_price = allPrice.value
+  const res = await addorderAPI({ order_no, items, total_price })
   if (res.status === 0) {
-    clear()
+    clearCart()
   }
 }
 onMounted(() => getcart())
 </script>
 
 <template>
-  <div class="McDL-cart-page">
-    <div class="container m-top-20">
-      <div class="cart">
-        <table>
+  <div class="cart-page">
+    <div class="cart-container">
+      <h2 class="cart-title">我的购物车</h2>
+
+      <div class="cart-table-wrap" v-if="cartList.length">
+        <table class="cart-table">
           <thead>
             <tr>
-              <th width="400">商品信息</th>
-              <th width="220">单价</th>
-              <th width="180">数量</th>
-              <th width="180">小计</th>
-              <th width="140">操作</th>
+              <th class="col-goods">商品信息</th>
+              <th class="col-price">单价</th>
+              <th class="col-num">数量</th>
+              <th class="col-subtotal">小计</th>
+              <th class="col-action">操作</th>
             </tr>
           </thead>
-          <!-- 商品列表 -->
           <tbody>
             <tr v-for="i in cartList" :key="i.id">
               <td>
-                <div class="goods">
-                  <RouterLink to="/"><img :src="i.imgurl" alt="" /></RouterLink>
-                  <div>
-                    <p class="name ellipsis">
-                      {{ i.name }}
-                    </p>
-                  </div>
+                <div class="goods-cell">
+                  <RouterLink to="/" class="goods-img-link">
+                    <img :src="i.imgurl" :alt="i.name" />
+                  </RouterLink>
+                  <div class="goods-name">{{ i.name }}</div>
                 </div>
               </td>
-              <td class="tc">
-                <p>&yen;{{ i.price }}</p>
+              <td class="col-center">&yen;{{ i.price }}</td>
+              <td class="col-center">
+                <el-input-number
+                  :min="1"
+                  @change="handleChange(i.id, i.num)"
+                  v-model="i.num"
+                  size="small"
+                />
               </td>
-              <td class="tc">
-                <el-input-number :min="1" @change="handleChange(i.id, i.num)" v-model="i.num" />
+              <td class="col-center">
+                <span class="subtotal-price">&yen;{{ (i.price * i.num).toFixed(2) }}</span>
               </td>
-              <td class="tc">
-                <p class="f16 red">&yen;{{ (i.price * i.num).toFixed(2) }}</p>
-              </td>
-              <td class="tc">
-                <p>
-                  <el-popconfirm
-                    title="确认删除吗?"
-                    confirm-button-text="确认"
-                    cancel-button-text="取消"
-                    @confirm="delCart(i.id)"
-                  >
-                    <template #reference>
-                      <a href="javascript:;">删除</a>
-                    </template>
-                  </el-popconfirm>
-                </p>
-              </td>
-            </tr>
-            <tr v-if="cartList.length === 0">
-              <td colspan="6">
-                <div class="cart-none">
-                  <el-empty description="购物车列表为空">
-                    <el-button type="primary" @click="$router.push('/menu/1')">随便逛逛</el-button>
-                  </el-empty>
-                </div>
+              <td class="col-center">
+                <el-popconfirm
+                  title="确认删除吗?"
+                  confirm-button-text="确认"
+                  cancel-button-text="取消"
+                  @confirm="delCart(i.id)"
+                >
+                  <template #reference>
+                    <span class="delete-btn" title="删除"><Trash2 :size="16" /></span>
+                  </template>
+                </el-popconfirm>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      <!-- 操作栏 -->
-      <div class="action">
-        <div class="batch">
-          共 {{ allCount }}件商品,商品合计：
-          <span class="red">¥ {{ allPrice.toFixed(2) }}</span>
+
+      <div v-else class="cart-empty">
+        <el-empty description="购物车列表为空">
+          <el-button type="primary" @click="$router.push('/menu/1')">随便逛逛</el-button>
+        </el-empty>
+      </div>
+
+      <div class="cart-bar" v-if="cartList.length">
+        <div class="bar-summary">
+          共 <strong>{{ allCount }}</strong> 件商品，商品合计：
+          <span class="bar-total-price">¥ {{ allPrice.toFixed(2) }}</span>
         </div>
-        <div class="total">
-          <el-button size="large" :disabled="!cartList.length" @click="clear" type="primary"
-            >清空购物车</el-button
-          >
-        </div>
-        <div class="total">
-          <el-button size="large" :disabled="!cartList.length" type="primary" @click="addOrder"
-            >下单结算</el-button
-          >
+        <div class="bar-actions">
+          <el-button @click="clearCart">清空购物车</el-button>
+          <el-button type="primary" class="btn-order" @click="addOrder">下单结算</el-button>
         </div>
       </div>
     </div>
@@ -120,127 +125,149 @@ onMounted(() => getcart())
 </template>
 
 <style scoped lang="scss">
-.McDL-cart-page {
-  margin-top: 20px;
+.cart-page {
+  width: $mcMaxWidth;
+  margin: 0 auto;
+  padding: 30px 0 60px;
+}
 
-  .cart {
-    background: #fff;
-    color: #666;
+.cart-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: $brandDark;
+  margin-bottom: 24px;
+}
 
-    table {
-      border-spacing: 0;
-      border-collapse: collapse;
-      line-height: 24px;
+.cart-table-wrap {
+  background: $mcBgWhite;
+  border-radius: $mcRadius;
+  box-shadow: $mcShadowSm;
+  overflow: hidden;
+}
 
-      th,
-      td {
-        padding: 10px;
-        border-bottom: 1px solid #f5f5f5;
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
 
-        &:first-child {
-          text-align: left;
-          padding-left: 30px;
-          color: #999;
-        }
-      }
-
-      th {
-        font-size: 16px;
-        font-weight: normal;
-        line-height: 50px;
-      }
-    }
+  th,
+  td {
+    padding: 16px 12px;
+    border-bottom: 1px solid $mcBorderLight;
   }
 
-  .cart-none {
+  th {
+    font-size: 14px;
+    font-weight: 500;
+    color: $mcTextSecondary;
+    background: #fafafa;
+    height: 52px;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+
+  .col-goods {
+    width: 400px;
+    padding-left: 28px;
+  }
+
+  .col-price,
+  .col-num {
+    width: 160px;
+  }
+
+  .col-subtotal {
+    width: 160px;
+  }
+
+  .col-action {
+    width: 100px;
+  }
+
+  .col-center {
     text-align: center;
-    padding: 120px 0;
-    background: #fff;
-
-    p {
-      color: #999;
-      padding: 20px 0;
-    }
   }
+}
 
-  .tc {
-    text-align: center;
+.goods-cell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 
-    a {
-      color: red;
-    }
-
-    .McDL-numbox {
-      margin: 0 auto;
-      width: 120px;
-    }
-  }
-
-  .red {
-    color: red;
-  }
-
-  .green {
-    color: green;
-  }
-
-  .f16 {
-    font-size: 16px;
-  }
-
-  .goods {
-    display: flex;
-    align-items: center;
-
-    img {
-      width: 100px;
-      height: 100px;
-    }
-
-    > div {
-      width: 280px;
-      font-size: 16px;
-      padding-left: 10px;
-
-      .attr {
-        font-size: 14px;
-        color: #999;
-      }
-    }
-  }
-
-  .action {
-    display: flex;
-    background: #fff;
-    margin-top: 20px;
+  img {
+    width: 80px;
     height: 80px;
-    align-items: center;
-    font-size: 16px;
-    justify-content: space-between;
-    padding: 0 30px;
-
-    .McDL-checkbox {
-      color: #999;
-    }
-
-    .batch {
-      a {
-        margin-left: 20px;
-      }
-    }
-
-    .red {
-      font-size: 18px;
-      margin-right: 20px;
-      font-weight: bold;
-    }
+    border-radius: $mcRadiusSm;
+    object-fit: cover;
   }
 
-  .tit {
-    color: #666;
-    font-size: 16px;
-    font-weight: normal;
-    line-height: 50px;
+  .goods-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: $mcText;
   }
+}
+
+.subtotal-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: $mcAccent;
+}
+
+.delete-btn {
+  color: $mcTextMuted;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: color $mcTransition;
+
+  &:hover {
+    color: $mcError;
+  }
+}
+
+.cart-empty {
+  background: $mcBgWhite;
+  border-radius: $mcRadius;
+  padding: 80px 0;
+  box-shadow: $mcShadowSm;
+}
+
+.cart-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $mcBgWhite;
+  border-radius: $mcRadius;
+  box-shadow: $mcShadowSm;
+  margin-top: 20px;
+  padding: 0 28px;
+  height: 76px;
+}
+
+.bar-summary {
+  font-size: 15px;
+  color: $mcTextSecondary;
+}
+
+.bar-total-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: $mcAccent;
+  margin-left: 4px;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+.bar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-order {
+  font-size: 15px;
+  letter-spacing: 2px;
+  border-radius: $mcRadiusSm;
+  padding: 0 28px;
 }
 </style>

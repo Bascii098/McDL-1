@@ -1,2 +1,44 @@
-$MCDLColor: #ffbc0d;
-$BORDERCOLOR:#d9d9d9
+// ========================================
+// McDL Design Tokens
+// ========================================
+
+// Brand Colors
+$brandGold: #FFC72C;
+$brandRed: #DA291C;
+$brandDark: #27251F;
+
+// Semantic Colors
+$mcPrimary: $brandGold;
+$mcAccent: $brandRed;
+$mcSuccess: #52c41a;
+$mcWarning: #faad14;
+$mcError: #ff4d4f;
+$mcText: #2c2c2c;
+$mcTextSecondary: #666;
+$mcTextMuted: #999;
+$mcBg: #f5f5f5;
+$mcBgWhite: #fff;
+$mcBorder: #e8e8e8;
+$mcBorderLight: #f0f0f0;
+
+// Effects
+$mcShadowSm: 0 2px 8px rgba(0, 0, 0, 0.06);
+$mcShadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+$mcShadowLg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$mcRadiusSm: 8px;
+$mcRadius: 12px;
+$mcRadiusLg: 16px;
+$mcTransition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Typography
+$mcFontFamily: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+  'Microsoft YaHei', sans-serif;
+$mcFontHeading: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+// Layout
+$mcMaxWidth: 1240px;
+$mcHeaderHeight: 80px;
+
+// Legacy aliases
+$MCDLColor: $brandGold;
+$BORDERCOLOR: $mcBorder;

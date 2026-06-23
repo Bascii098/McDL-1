@@ -1,29 +1,14 @@
 import http from '@/utils/http'
-export function addorderAPI({ id, name, price }) {
-  const userInfo = localStorage.getItem('big-user')
-  const token = JSON.parse(userInfo)?.token
+
+export function addorderAPI({ order_no, items, total_price }) {
   return http({
-    url: `/my/addorder`,
+    url: '/api/order/add',
     method: 'POST',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    data: {
-      id,
-      name,
-      price
-    }
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    data: { order_no, items, total_price }
   })
 }
+
 export function getorderAPI() {
-  const userInfo = localStorage.getItem('big-user')
-  const token = JSON.parse(userInfo)?.token
-  return http({
-    url: '/my/getorder',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
+  return http({ url: '/api/order/list' })
 }

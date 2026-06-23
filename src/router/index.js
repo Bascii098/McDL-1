@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import layout from '@/views/Layout/index.vue'
 import cart from '@/views/cart/index.vue'
 import Login from '@/views/Login/index.vue'
@@ -28,11 +29,13 @@ const router = createRouter({
         },
         {
           path: '/cart',
-          component: cart
+          component: cart,
+          meta: { requiresAuth: true }
         },
         {
           path: '/order',
-          component: order
+          component: order,
+          meta: { requiresAuth: true }
         }
       ]
     },
@@ -41,6 +44,14 @@ const router = createRouter({
       component: Login
     }
   ]
+})
+
+// 路由守卫：需要登录的页面未登录时跳转到登录页
+router.beforeEach((to) => {
+  const userStore = useUserStore()
+  if (to.meta.requiresAuth && !userStore.token) {
+    return '/login'
+  }
 })
 
 export default router

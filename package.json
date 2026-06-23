@@ -13,11 +13,13 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
+    "@lucide/vue": "^1.21.0",
     "axios": "^1.7.2",
     "element-plus": "^2.7.6",
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
+    "uuid": "^14.0.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },

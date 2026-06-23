@@ -1,64 +1,36 @@
 import http from '@/utils/http'
-export function addcartAPI({ id, name, num, price, imgurl }) {
-  const userInfo = localStorage.getItem('big-user')
-  const token = JSON.parse(userInfo)?.token
+
+export function addcartAPI({ food_id, name, num, price, imgurl }) {
   return http({
-    url: `/my/addcart`,
+    url: '/api/cart/add',
     method: 'POST',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    data: {
-      id,
-      name,
-      num,
-      price,
-      imgurl
-    }
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    data: { food_id, name, num, price, imgurl }
   })
 }
+
 export function getcartAPI() {
-  const userInfo = localStorage.getItem('big-user')
-  const token = JSON.parse(userInfo)?.token
-  return http({
-    url: '/my/getcart',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
+  return http({ url: '/api/cart/list' })
 }
+
 export function deletecartAPI(id) {
-  const userInfo = localStorage.getItem('big-user')
-  const token = JSON.parse(userInfo)?.token
   return http({
-    url: '/my/deletecart',
+    url: '/api/cart/delete',
     method: 'POST',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     data: { id }
   })
 }
-export function updatecartAPI({ id, num }) {
-  const userInfo = localStorage.getItem('big-user')
-  const token = JSON.parse(userInfo)?.token
 
+export function updatecartAPI({ id, num }) {
   return http({
-    url: '/my/updatecart',
+    url: '/api/cart/update',
     method: 'POST',
-    headers: {
-      Authorization: token,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     data: { id, num }
   })
 }
+
 export function clearcartAPI() {
-  return http({
-    url: '/mcdl/clearcart',
-    method: 'POST'
-  })
+  return http({ url: '/api/cart/clear', method: 'POST' })
 }

@@ -1,61 +1,54 @@
 <template>
-  <footer class="app_footer">
-    <!-- 联系我们 -->
-    <div class="contact">
+  <footer class="app-footer">
+    <div class="footer-main">
       <div class="container">
-        <dl>
-          <dt>客户服务</dt>
-          <dd><i class="iconfont icon-kefu"></i> 在线客服</dd>
-          <dd><i class="iconfont icon-kefu1"></i> 问题反馈</dd>
-        </dl>
-        <dl>
-          <dt>关注我们</dt>
-          <dd><i class="iconfont icon-gongzhonghao"></i> 公众号</dd>
-          <dd><i class="iconfont icon-weibo"></i> 微博</dd>
-        </dl>
-        <dl>
-          <dt>下载APP</dt>
-          <dd class="qrcode"><img src="@/assets/images/qrcode.png" /></dd>
-          <dd class="download">
-            <span>扫描二维码</span>
-            <span>立马下载APP</span>
-            <a href="javascript:;">下载页面</a>
-          </dd>
-        </dl>
-        <dl>
-          <dt>服务热线</dt>
-          <dd class="hotline">400-0000-000 <small>周一至周日 8:00-18:00</small></dd>
-        </dl>
+        <div class="footer-grid">
+          <dl>
+            <dt>客户服务</dt>
+            <dd><i class="iconfont icon-kefu"></i> 在线客服</dd>
+            <dd><i class="iconfont icon-kefu1"></i> 问题反馈</dd>
+          </dl>
+          <dl>
+            <dt>关注我们</dt>
+            <dd><i class="iconfont icon-gongzhonghao"></i> 公众号</dd>
+            <dd><i class="iconfont icon-weibo"></i> 微博</dd>
+          </dl>
+          <dl>
+            <dt>下载APP</dt>
+            <dd class="qrcode"><img src="@/assets/images/qrcode.png" /></dd>
+            <dd class="download">
+              <span>扫描二维码</span>
+              <span>立马下载APP</span>
+              <a href="javascript:;">下载页面</a>
+            </dd>
+          </dl>
+          <dl>
+            <dt>服务热线</dt>
+            <dd class="hotline">
+              400-0000-000
+              <small>周一至周日 8:00-18:00</small>
+            </dd>
+          </dl>
+        </div>
       </div>
     </div>
-    <!-- 其它 -->
-    <div class="extra">
+
+    <div class="footer-bottom">
       <div class="container">
         <div class="slogan">
-          <a href="javascript:;">
-            <i class="iconfont icon-xinxian"></i>
-            <span>Flesh</span>
-          </a>
-          <a href="javascript:;">
-            <i class="iconfont icon-meiwei"></i>
-            <span>Delicious</span>
-          </a>
-          <a href="javascript:;">
-            <i class="iconfont icon-shandian"></i>
-            <span>Fast</span>
-          </a>
+          <span class="slogan-item"> <i class="iconfont icon-xinxian"></i>新鲜 </span>
+          <span class="slogan-item"> <i class="iconfont icon-meiwei"></i>美味 </span>
+          <span class="slogan-item"> <i class="iconfont icon-shandian"></i>极速 </span>
         </div>
-        <!-- 版权信息 -->
         <div class="copyright">
           <p>
             <a href="javascript:;">关于我们</a>
             <a href="javascript:;">帮助中心</a>
             <a href="javascript:;">售后服务</a>
             <a href="javascript:;">商务合作</a>
-            <a href="javascript:;">搜索推荐</a>
             <a href="javascript:;">友情链接</a>
           </p>
-          <p>CopyRight © 快餐点餐</p>
+          <p>CopyRight &copy; 快餐点餐</p>
         </div>
       </div>
     </div>
@@ -63,165 +56,158 @@
 </template>
 
 <style scoped lang="scss">
-.app_footer {
-  overflow: hidden;
-  background-color: #f5f5f5;
-  padding-top: 20px;
+.app-footer {
+  margin-top: 60px;
+}
 
-  .contact {
-    background: #fff;
+.footer-main {
+  background: $mcBgWhite;
+  padding: 48px 0 36px;
 
-    .container {
-      padding: 60px 0 40px 25px;
-      display: flex;
-    }
-
-    dl {
-      height: 190px;
-      text-align: center;
-      padding: 0 72px;
-      border-right: 1px solid #f2f2f2;
-      color: #333;
-
-      &:first-child {
-        padding-left: 0;
-      }
-
-      &:last-child {
-        border-right: none;
-        padding-right: 0;
-      }
-    }
-
-    dt {
-      line-height: 1;
-      font-size: 18px;
-    }
-
-    dd {
-      margin: 36px 12px 0 0;
-      float: left;
-      width: 92px;
-      height: 92px;
-      padding-top: 10px;
-      border: 1px solid #ededed;
-
-      .iconfont {
-        font-size: 36px;
-        display: block;
-        color: #dd1313;
-      }
-
-      &:hover {
-        .iconfont {
-          color: $MCDLColor;
-        }
-      }
-
-      &:last-child {
-        margin-right: 0;
-      }
-    }
-
-    .qrcode {
-      width: 92px;
-      height: 92px;
-      padding: 7px;
-      border: 1px solid #ededed;
-    }
-
-    .download {
-      padding-top: 5px;
-      font-size: 14px;
-      width: auto;
-      height: auto;
-      border: none;
-
-      span {
-        display: block;
-      }
-
-      a {
-        display: block;
-        line-height: 1;
-        padding: 10px 25px;
-        margin-top: 5px;
-        color: #fff;
-        border-radius: 2px;
-        background-color: $MCDLColor;
-      }
-    }
-
-    .hotline {
-      padding-top: 20px;
-      font-size: 22px;
-      color: #666;
-      width: auto;
-      height: auto;
-      border: none;
-
-      small {
-        display: block;
-        font-size: 15px;
-        color: #999;
-      }
-    }
-  }
-
-  .extra {
-    background-color: $MCDLColor;
-  }
-
-  .slogan {
-    height: 178px;
-    line-height: 58px;
-    padding: 60px 100px;
-    border-bottom: 1px solid #434343;
+  .container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+  }
+}
 
-    a {
-      height: 58px;
-      line-height: 58px;
-      color: #f90707;
-      font-size: 28px;
-      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+.footer-grid {
+  display: flex;
+  gap: 40px;
 
-      i {
-        font-size: 50px;
-        vertical-align: middle;
-        margin-right: 10px;
-        font-weight: 100;
-      }
+  dl {
+    text-align: center;
+    padding: 0 40px;
+    border-right: 1px solid $mcBorderLight;
 
-      span {
-        vertical-align: middle;
-        text-shadow: 0 0 1px #333;
-      }
+    &:last-child {
+      border-right: none;
     }
   }
 
-  .copyright {
-    height: 170px;
-    padding-top: 40px;
-    text-align: center;
-    color: #333;
-    font-size: 15px;
+  dt {
+    font-size: 16px;
+    font-weight: 600;
+    color: $mcText;
+    margin-bottom: 20px;
+  }
 
-    p {
-      line-height: 1;
-      margin-bottom: 20px;
+  dd {
+    margin: 12px 0;
+    font-size: 14px;
+    color: $mcTextSecondary;
+    cursor: pointer;
+    transition: color $mcTransition;
+
+    .iconfont {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 4px;
+      color: $mcAccent;
+    }
+
+    &:hover {
+      color: $mcAccent;
+    }
+  }
+
+  .qrcode {
+    width: 92px;
+    height: 92px;
+    padding: 6px;
+    border: 1px solid $mcBorder;
+    border-radius: $mcRadiusSm;
+    margin: 0 auto;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .download {
+    padding-top: 4px;
+    font-size: 13px;
+
+    span {
+      display: block;
+      line-height: 1.8;
     }
 
     a {
-      color: #999;
-      line-height: 1;
-      padding: 0 10px;
-      border-right: 1px solid #999;
+      display: inline-block;
+      padding: 6px 20px;
+      margin-top: 6px;
+      color: #fff;
+      background: $mcAccent;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+  }
 
-      &:last-child {
-        border-right: none;
-      }
+  .hotline {
+    font-size: 22px;
+    color: $mcText;
+    font-weight: 600;
+
+    small {
+      display: block;
+      font-size: 13px;
+      color: $mcTextMuted;
+      font-weight: 400;
+      margin-top: 6px;
+    }
+  }
+}
+
+.footer-bottom {
+  background: $brandDark;
+  padding: 48px 0 36px;
+  text-align: center;
+}
+
+.slogan {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.slogan-item {
+  font-size: 24px;
+  color: $brandGold;
+  font-weight: 500;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 36px;
+  }
+}
+
+.copyright {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+
+  p {
+    margin-bottom: 10px;
+  }
+
+  a {
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0 12px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    transition: color $mcTransition;
+
+    &:hover {
+      color: $brandGold;
+    }
+
+    &:last-child {
+      border-right: none;
     }
   }
 }
