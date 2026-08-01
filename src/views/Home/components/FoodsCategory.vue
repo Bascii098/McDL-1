@@ -3,9 +3,14 @@ import { getCategoryAPI } from '@/apis/foods'
 import { onMounted, ref } from 'vue'
 
 const foodsList = ref([])
+const loading = ref(true)
 const getFood = async () => {
-  const res = await getCategoryAPI()
-  foodsList.value = res.data
+  try {
+    const res = await getCategoryAPI()
+    foodsList.value = res.data
+  } finally {
+    loading.value = false
+  }
 }
 onMounted(() => getFood())
 </script>
@@ -17,20 +22,34 @@ onMounted(() => getFood())
       美食分类
       <span class="title-line"></span>
     </h2>
-    <ul class="category-grid">
-      <li v-for="item in foodsList" :key="item.id">
-        <RouterLink :to="`/menu/${item.id}`" class="category-card">
-          <div class="card-img-wrap">
-            <img class="card-img" :src="item.imgurl" :alt="item.name" />
-            <div class="card-gradient"></div>
-            <div class="card-overlay">
-              <span class="overlay-text">点击查看</span>
+    <el-skeleton :loading="loading" animated>
+      <template #template>
+        <ul class="category-grid">
+          <li v-for="i in 5" :key="i" class="category-card skeleton-card">
+            <div class="card-img-wrap">
+              <el-skeleton-item variant="image" class="skeleton-img" />
             </div>
-          </div>
-          <div class="card-name">{{ item.name }}</div>
-        </RouterLink>
-      </li>
-    </ul>
+            <el-skeleton-item variant="h3" class="skeleton-name" />
+          </li>
+        </ul>
+      </template>
+      <template #default>
+        <ul class="category-grid">
+          <li v-for="item in foodsList" :key="item.id">
+            <RouterLink :to="`/menu/${item.id}`" class="category-card">
+              <div class="card-img-wrap">
+                <img class="card-img" :src="item.imgurl" :alt="item.name" />
+                <div class="card-gradient"></div>
+                <div class="card-overlay">
+                  <span class="overlay-text">点击查看</span>
+                </div>
+              </div>
+              <div class="card-name">{{ item.name }}</div>
+            </RouterLink>
+          </li>
+        </ul>
+      </template>
+    </el-skeleton>
   </section>
 </template>
 
@@ -154,5 +173,21 @@ onMounted(() => getFood())
   letter-spacing: 2px;
   background: $mcBgWhite;
   position: relative;
+}
+
+.skeleton-card {
+  pointer-events: none;
+
+  .skeleton-img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .skeleton-name {
+    width: 60%;
+    height: 22px;
+    margin: 21px auto;
+    display: block;
+  }
 }
 </style>

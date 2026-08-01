@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import layout from '@/views/Layout/index.vue'
-import cart from '@/views/cart/index.vue'
-import Login from '@/views/Login/index.vue'
-import menu from '@/views/menu/index.vue'
-import order from '@/views/order/index.vue'
-import Home from '@/views/Home/index.vue'
-import foodsdetail from '@/views/FoodsDetail/index.vue'
+
+const layout = () => import('@/views/Layout/index.vue')
+const cart = () => import('@/views/cart/index.vue')
+const Login = () => import('@/views/Login/index.vue')
+const menu = () => import('@/views/menu/index.vue')
+const order = () => import('@/views/order/index.vue')
+const Home = () => import('@/views/Home/index.vue')
+const foodsdetail = () => import('@/views/FoodsDetail/index.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

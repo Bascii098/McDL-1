@@ -10,9 +10,14 @@ import { Trash2 } from '@lucide/vue'
 
 const cartStore = useCartStore()
 const cartList = ref([])
+const loading = ref(true)
 const getcart = async () => {
-  const res = await getcartAPI()
-  cartList.value = res.data
+  try {
+    const res = await getcartAPI()
+    cartList.value = res.data
+  } finally {
+    loading.value = false
+  }
 }
 const delCart = async (id) => {
   const idx = cartList.value.findIndex((item) => id === item.id)
@@ -54,72 +59,89 @@ onMounted(() => getcart())
     <div class="cart-container">
       <h2 class="cart-title">我的购物车</h2>
 
-      <div class="cart-table-wrap" v-if="cartList.length">
-        <table class="cart-table">
-          <thead>
-            <tr>
-              <th class="col-goods">商品信息</th>
-              <th class="col-price">单价</th>
-              <th class="col-num">数量</th>
-              <th class="col-subtotal">小计</th>
-              <th class="col-action">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="i in cartList" :key="i.id">
-              <td>
-                <div class="goods-cell">
-                  <RouterLink to="/" class="goods-img-link">
-                    <img :src="i.imgurl" :alt="i.name" />
-                  </RouterLink>
-                  <div class="goods-name">{{ i.name }}</div>
-                </div>
-              </td>
-              <td class="col-center">&yen;{{ i.price }}</td>
-              <td class="col-center">
-                <el-input-number
-                  :min="1"
-                  @change="handleChange(i.id, i.num)"
-                  v-model="i.num"
-                  size="small"
-                />
-              </td>
-              <td class="col-center">
-                <span class="subtotal-price">&yen;{{ (i.price * i.num).toFixed(2) }}</span>
-              </td>
-              <td class="col-center">
-                <el-popconfirm
-                  title="确认删除吗?"
-                  confirm-button-text="确认"
-                  cancel-button-text="取消"
-                  @confirm="delCart(i.id)"
-                >
-                  <template #reference>
-                    <span class="delete-btn" title="删除"><Trash2 :size="16" /></span>
-                  </template>
-                </el-popconfirm>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <el-skeleton :loading="loading" animated>
+        <template #template>
+          <div class="cart-table-wrap skeleton-table">
+            <div v-for="i in 3" :key="i" class="skeleton-row">
+              <div class="skeleton-goods">
+                <el-skeleton-item variant="image" class="skeleton-goods-img" />
+                <el-skeleton-item variant="text" class="skeleton-goods-name" />
+              </div>
+              <el-skeleton-item variant="text" class="skeleton-cell w20" />
+              <el-skeleton-item variant="text" class="skeleton-cell w20" />
+              <el-skeleton-item variant="text" class="skeleton-cell w20" />
+            </div>
+          </div>
+        </template>
+        <template #default>
+          <div class="cart-table-wrap" v-if="cartList.length">
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th class="col-goods">商品信息</th>
+                  <th class="col-price">单价</th>
+                  <th class="col-num">数量</th>
+                  <th class="col-subtotal">小计</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="i in cartList" :key="i.id">
+                  <td>
+                    <div class="goods-cell">
+                      <RouterLink to="/" class="goods-img-link">
+                        <img :src="i.imgurl" :alt="i.name" />
+                      </RouterLink>
+                      <div class="goods-name">{{ i.name }}</div>
+                    </div>
+                  </td>
+                  <td class="col-center">&yen;{{ i.price }}</td>
+                  <td class="col-center">
+                    <el-input-number
+                      :min="1"
+                      @change="handleChange(i.id, i.num)"
+                      v-model="i.num"
+                      size="small"
+                    />
+                  </td>
+                  <td class="col-center">
+                    <span class="subtotal-price">&yen;{{ (i.price * i.num).toFixed(2) }}</span>
+                  </td>
+                  <td class="col-center">
+                    <el-popconfirm
+                      title="确认删除吗?"
+                      confirm-button-text="确认"
+                      cancel-button-text="取消"
+                      @confirm="delCart(i.id)"
+                    >
+                      <template #reference>
+                        <span class="delete-btn" title="删除"><Trash2 :size="16" /></span>
+                      </template>
+                    </el-popconfirm>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-      <div v-else class="cart-empty">
-        <el-empty description="购物车列表为空">
-          <el-button type="primary" @click="$router.push('/menu/1')">随便逛逛</el-button>
-        </el-empty>
-      </div>
+          <div v-else class="cart-empty">
+            <el-empty description="购物车列表为空">
+              <el-button type="primary" @click="$router.push('/menu/1')">随便逛逛</el-button>
+            </el-empty>
+          </div>
 
-      <div class="cart-bar" v-if="cartList.length">
-        <div class="bar-summary">
-          共 <strong>{{ allCount }}</strong> 件商品，商品合计：
-          <span class="bar-total-price">¥ {{ allPrice.toFixed(2) }}</span>
-        </div>
-        <div class="bar-actions">
-          <el-button @click="clearCart">清空购物车</el-button>
-          <el-button type="primary" class="btn-order" @click="addOrder">下单结算</el-button>
-        </div>
-      </div>
+          <div class="cart-bar" v-if="cartList.length">
+            <div class="bar-summary">
+              共 <strong>{{ allCount }}</strong> 件商品，商品合计：
+              <span class="bar-total-price">¥ {{ allPrice.toFixed(2) }}</span>
+            </div>
+            <div class="bar-actions">
+              <el-button @click="clearCart">清空购物车</el-button>
+              <el-button type="primary" class="btn-order" @click="addOrder">下单结算</el-button>
+            </div>
+          </div>
+        </template>
+      </el-skeleton>
     </div>
   </div>
 </template>
@@ -269,5 +291,50 @@ onMounted(() => getcart())
   letter-spacing: 2px;
   border-radius: $mcRadiusSm;
   padding: 0 28px;
+}
+
+.skeleton-table {
+  padding: 0 28px;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 112px;
+  border-bottom: 1px solid $mcBorderLight;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.skeleton-goods {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.skeleton-goods-img {
+  width: 80px;
+  height: 80px;
+  border-radius: $mcRadiusSm;
+  flex-shrink: 0;
+}
+
+.skeleton-goods-name {
+  width: 35%;
+  height: 18px;
+}
+
+.skeleton-cell {
+  width: 160px;
+  height: 18px;
+
+  &.w20 {
+    width: 20%;
+  }
 }
 </style>

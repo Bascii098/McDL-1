@@ -17,6 +17,7 @@ const foodsList = ref([])
 const isLogin = computed(() => userStore.token)
 
 const categories = ref([])
+const loading = ref(true)
 const categoryName = computed(() => {
   const cat = categories.value.find((c) => c.id === Number(route.params.id))
   return cat?.name || '菜单'
@@ -37,8 +38,13 @@ const loadCart = async () => {
 }
 
 const getFood = async (categoryId = route.params.id) => {
-  const res = await getfoodsAPI(categoryId)
-  foodsList.value = res.data
+  loading.value = true
+  try {
+    const res = await getfoodsAPI(categoryId)
+    foodsList.value = res.data
+  } finally {
+    loading.value = false
+  }
 }
 onMounted(async () => {
   const [catRes] = await Promise.all([getCategoryAPI(), loadCart()])
@@ -100,34 +106,51 @@ const decrease = async (item) => {
       <MenuNav />
       <div class="menu-main">
         <h2 class="category-title">{{ categoryName }}</h2>
-        <ul class="food-grid">
-          <li v-for="item in foodsList" :key="item.id">
-            <div class="food-card">
-              <RouterLink :to="`/foods/${item.id}`" class="food-img-wrap">
-                <img class="food-img" :src="item.imgurl" :alt="item.name" />
-              </RouterLink>
-              <div class="food-body">
-                <RouterLink :to="`/foods/${item.id}`" class="food-name">
-                  {{ item.name }}
-                </RouterLink>
-                <div class="food-bottom">
-                  <p class="food-price"><span class="price-symbol">￥</span>{{ item.price }}</p>
-                  <div class="cart-controls" @click.stop>
-                    <template v-if="getQty(item.id) > 0">
-                      <button class="ctrl-btn" @click="decrease(item)" aria-label="减少">
-                        <Minus :size="16" />
-                      </button>
-                      <span class="ctrl-qty">{{ getQty(item.id) }}</span>
-                    </template>
-                    <button class="ctrl-btn plus" @click="increase(item)" aria-label="增加">
-                      <Plus :size="16" />
-                    </button>
+        <el-skeleton :loading="loading" animated>
+          <template #template>
+            <ul class="food-grid">
+              <li v-for="i in 8" :key="i" class="skeleton-card">
+                <div class="skeleton-img-wrap">
+                  <el-skeleton-item variant="image" class="skeleton-img" />
+                </div>
+                <div class="skeleton-body">
+                  <el-skeleton-item variant="text" class="skeleton-line w60" />
+                  <el-skeleton-item variant="text" class="skeleton-line w40" />
+                </div>
+              </li>
+            </ul>
+          </template>
+          <template #default>
+            <ul class="food-grid">
+              <li v-for="item in foodsList" :key="item.id">
+                <div class="food-card">
+                  <RouterLink :to="`/foods/${item.id}`" class="food-img-wrap">
+                    <img class="food-img" :src="item.imgurl" :alt="item.name" />
+                  </RouterLink>
+                  <div class="food-body">
+                    <RouterLink :to="`/foods/${item.id}`" class="food-name">
+                      {{ item.name }}
+                    </RouterLink>
+                    <div class="food-bottom">
+                      <p class="food-price"><span class="price-symbol">￥</span>{{ item.price }}</p>
+                      <div class="cart-controls" @click.stop>
+                        <template v-if="getQty(item.id) > 0">
+                          <button class="ctrl-btn" @click="decrease(item)" aria-label="减少">
+                            <Minus :size="16" />
+                          </button>
+                          <span class="ctrl-qty">{{ getQty(item.id) }}</span>
+                        </template>
+                        <button class="ctrl-btn plus" @click="increase(item)" aria-label="增加">
+                          <Plus :size="16" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </li>
-        </ul>
+              </li>
+            </ul>
+          </template>
+        </el-skeleton>
       </div>
     </div>
   </div>
@@ -294,5 +317,44 @@ const decrease = async (item) => {
   font-size: 14px;
   font-weight: 600;
   color: $mcText;
+}
+
+.skeleton-card {
+  background: $mcBgWhite;
+  border-radius: $mcRadius;
+  overflow: hidden;
+  box-shadow: $mcShadowSm;
+  pointer-events: none;
+}
+
+.skeleton-img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 100%;
+}
+
+.skeleton-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-line {
+  height: 16px;
+  border-radius: 4px;
+
+  &.w60 {
+    width: 60%;
+  }
+
+  &.w40 {
+    width: 40%;
+  }
 }
 </style>

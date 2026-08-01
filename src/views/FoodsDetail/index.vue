@@ -15,11 +15,16 @@ const router = useRouter()
 const route = useRoute()
 const foodsDetail = ref({})
 const qty = ref(0)
+const loading = ref(true)
 let cartId = null
 
 const getDetail = async () => {
-  const res = await getfoodsdetailAPI(route.params.id)
-  foodsDetail.value = res.data
+  try {
+    const res = await getfoodsdetailAPI(route.params.id)
+    foodsDetail.value = res.data
+  } finally {
+    loading.value = false
+  }
 }
 
 const loadCartQty = async () => {
@@ -89,34 +94,55 @@ onMounted(async () => {
       <el-breadcrumb-item>{{ foodsDetail.name }}</el-breadcrumb-item>
     </el-breadcrumb>
 
-    <div class="detail-card">
-      <div class="detail-img-wrap">
-        <img class="detail-img" :src="foodsDetail.imgurl" :alt="foodsDetail.name" />
-      </div>
-      <div class="detail-body">
-        <h1 class="detail-name">{{ foodsDetail.name }}</h1>
-        <p class="detail-desc">{{ foodsDetail.description }}</p>
-        <div v-if="foodsDetail.calories" class="detail-calories">
-          <Flame :size="18" />
-          <span>{{ foodsDetail.calories }}</span>
+    <el-skeleton :loading="loading" animated>
+      <template #template>
+        <div class="detail-card skeleton-detail">
+          <div class="detail-img-wrap">
+            <el-skeleton-item variant="image" class="skeleton-img" />
+          </div>
+          <div class="detail-body">
+            <el-skeleton-item variant="h1" class="skeleton-title" />
+            <el-skeleton-item variant="text" class="skeleton-line w80" />
+            <el-skeleton-item variant="text" class="skeleton-line w60" />
+            <el-skeleton-item variant="text" class="skeleton-line w40" />
+          </div>
         </div>
-        <div class="detail-price">
-          <span class="price-symbol">￥</span>
-          <span class="price-value">{{ foodsDetail.price }}</span>
+      </template>
+      <template #default>
+        <div class="detail-card">
+          <div class="detail-img-wrap">
+            <img class="detail-img" :src="foodsDetail.imgurl" :alt="foodsDetail.name" />
+          </div>
+          <div class="detail-body">
+            <h1 class="detail-name">{{ foodsDetail.name }}</h1>
+            <p class="detail-desc">{{ foodsDetail.description }}</p>
+            <div v-if="foodsDetail.calories" class="detail-calories">
+              <Flame :size="18" />
+              <span>{{ foodsDetail.calories }}</span>
+            </div>
+            <div class="detail-price">
+              <span class="price-symbol">￥</span>
+              <span class="price-value">{{ foodsDetail.price }}</span>
+            </div>
+            <div class="detail-cart" @click.stop>
+              <template v-if="qty > 0">
+                <button class="dc-btn" @click="decrease" aria-label="减少">
+                  <Minus :size="18" />
+                </button>
+                <span class="dc-qty">{{ qty }}</span>
+              </template>
+              <button
+                class="dc-btn plus"
+                @click="qty > 0 ? increase() : addToCart()"
+                aria-label="增加"
+              >
+                <Plus :size="18" />
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="detail-cart" @click.stop>
-          <template v-if="qty > 0">
-            <button class="dc-btn" @click="decrease" aria-label="减少">
-              <Minus :size="18" />
-            </button>
-            <span class="dc-qty">{{ qty }}</span>
-          </template>
-          <button class="dc-btn plus" @click="qty > 0 ? increase() : addToCart()" aria-label="增加">
-            <Plus :size="18" />
-          </button>
-        </div>
-      </div>
-    </div>
+      </template>
+    </el-skeleton>
   </div>
 </template>
 
@@ -254,5 +280,38 @@ onMounted(async () => {
   font-size: 20px;
   font-weight: 700;
   color: $mcText;
+}
+
+.skeleton-detail {
+  pointer-events: none;
+
+  .skeleton-img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.skeleton-title {
+  width: 50%;
+  height: 34px;
+  margin-bottom: 20px;
+}
+
+.skeleton-line {
+  height: 18px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+
+  &.w80 {
+    width: 80%;
+  }
+
+  &.w60 {
+    width: 60%;
+  }
+
+  &.w40 {
+    width: 40%;
+  }
 }
 </style>
