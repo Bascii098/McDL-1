@@ -30,7 +30,7 @@ const navItems = [
 
 const logout = () => {
   clearcartAPI().finally(() => {})
-  userStore.setToken(null)
+  userStore.logout() // 清内存 access token + 调后端清 HttpOnly refresh cookie
   router.replace('/login')
 }
 </script>

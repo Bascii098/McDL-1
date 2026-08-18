@@ -47,11 +47,12 @@ const router = createRouter({
   ]
 })
 
-// 路由守卫：需要登录的页面未登录时跳转到登录页
-router.beforeEach((to) => {
+// 路由守卫：需要登录的页面先尝试用 refresh cookie 恢复会话，失败再跳登录页
+router.beforeEach(async (to) => {
   const userStore = useUserStore()
-  if (to.meta.requiresAuth && !userStore.token) {
-    return '/login'
+  if (to.meta.requiresAuth) {
+    const ok = userStore.token || (await userStore.restoreSession())
+    if (!ok) return '/login'
   }
 })
 

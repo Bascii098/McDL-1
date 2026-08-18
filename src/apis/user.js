@@ -23,3 +23,10 @@ export function userLoginService({ username, password }) {
     data: params
   })
 }
+
+export function logoutAPI() {
+  return http({
+    url: '/api/user/logout',
+    method: 'POST'
+  })
+}

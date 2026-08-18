@@ -1,36 +1,38 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
-const TOKEN_KEY = 'mcdl_token'
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
-  return match ? match[2] : ''
-}
-
-function setCookie(name, value, days = 7) {
-  const d = new Date()
-  d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000)
-  document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Lax`
-}
-
-function removeCookie(name) {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`
-}
+import { requestRefreshToken } from '@/utils/refresh'
+import { logoutAPI } from '@/apis/user'
 
 export const useUserStore = defineStore('user', () => {
-  const token = ref(getCookie(TOKEN_KEY))
+  // access token 只放内存，不落任何可被 JS 读取的存储（localStorage/cookie），XSS 偷不到持久凭证
+  const token = ref('')
 
   const setToken = (t) => {
-    token.value = t
-    if (t) setCookie(TOKEN_KEY, t)
-    else removeCookie(TOKEN_KEY)
+    token.value = t || ''
+  }
+
+  // 页面刷新后用 HttpOnly refresh cookie 换新的 access token，恢复登录态
+  // 内部对并发调用做了去重，可被主流程 + 路由守卫重复调用
+  const restoreSession = async () => {
+    if (token.value) return true
+    try {
+      token.value = await requestRefreshToken()
+      return true
+    } catch {
+      token.value = ''
+      return false
+    }
+  }
+
+  const logout = () => {
+    token.value = ''
+    // HttpOnly cookie 无法用 JS 删除，必须调后端清
+    logoutAPI().catch(() => {})
   }
 
   const clearUserInfo = () => {
     token.value = ''
-    removeCookie(TOKEN_KEY)
   }
 
-  return { token, setToken, clearUserInfo }
+  return { token, setToken, restoreSession, logout, clearUserInfo }
 })
